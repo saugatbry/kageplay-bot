@@ -11,7 +11,6 @@ module.exports = (client, getConfig, saveConfig) => {
 
     app.set('view engine', 'ejs');
     app.set('views', path.join(__dirname, 'views'));
-    
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(express.static(path.join(__dirname, 'public')));
     app.use(session({
@@ -20,13 +19,10 @@ module.exports = (client, getConfig, saveConfig) => {
         saveUninitialized: true
     }));
 
-    // Authentication Middleware
     const checkAuth = (req, res, next) => {
         if (req.session.loggedIn) return next();
         res.redirect('/login');
     };
-
-    // --- ROUTES ---
 
     app.get('/login', (req, res) => {
         res.render('login', { error: null });
@@ -47,15 +43,21 @@ module.exports = (client, getConfig, saveConfig) => {
         res.redirect('/login');
     });
 
-    app.get('/', checkAuth, (req, res) => {
+    app.get('/', checkAuth, async (req, res) => {
         const config = getConfig();
-        // Pass basic bot stats
         const stats = {
             guilds: client.guilds.cache.size,
             users: client.users.cache.size,
-            channels: client.channels.cache.size
+            channels: client.channels.cache.size,
+            uptime: Math.floor(process.uptime() / 60)
         };
-        res.render('dashboard', { config, stats });
+        let botStatus = 'Disconnected';
+        let statusColor = 'danger';
+        if (client.isReady()) {
+            botStatus = client.ws.status === 0 ? 'Online' : 'Connecting...';
+            statusColor = client.ws.status === 0 ? 'success' : 'warning';
+        }
+        res.render('dashboard', { config, stats, botStatus, statusColor, success: req.query.success });
     });
 
     app.post('/settings', checkAuth, (req, res) => {
@@ -72,23 +74,20 @@ module.exports = (client, getConfig, saveConfig) => {
     app.post('/announce', checkAuth, async (req, res) => {
         const config = getConfig();
         const { title, description, image, channelId } = req.body;
-        
-        if (!channelId) {
-            return res.render('announce', { config, success: 'Please provide a channel ID.' });
-        }
+
+        if (!channelId) return res.render('announce', { config, success: 'Please provide a channel ID.' });
 
         try {
             const channel = await client.channels.fetch(channelId);
-            if (!channel) throw new Error("Channel not found");
+            if (!channel) throw new Error('Channel not found');
 
             const embed = new EmbedBuilder()
-                .setTitle(title || "Announcement")
-                .setDescription(description || "")
+                .setTitle(title || 'Announcement')
+                .setDescription(description || '')
                 .setColor('#0099ff')
                 .setTimestamp();
 
             if (image) embed.setImage(image);
-
             await channel.send({ embeds: [embed] });
             res.render('announce', { config, success: 'Announcement posted successfully!' });
         } catch (err) {
@@ -99,19 +98,20 @@ module.exports = (client, getConfig, saveConfig) => {
     app.get('/env', checkAuth, (req, res) => {
         const envPath = path.join(__dirname, '.env');
         let envContent = '';
-        if (fs.existsSync(envPath)) {
-            envContent = fs.readFileSync(envPath, 'utf8');
-        }
+        if (fs.existsSync(envPath)) envContent = fs.readFileSync(envPath, 'utf8');
         res.render('env', { envContent, success: false });
     });
 
     app.post('/env', checkAuth, (req, res) => {
         const envPath = path.join(__dirname, '.env');
         fs.writeFileSync(envPath, req.body.envContent || '');
-        res.render('env', { envContent: req.body.envContent, success: 'Environment variables saved successfully! Please restart the bot for changes to take effect.' });
+        res.render('env', {
+            envContent: req.body.envContent,
+            success: 'Environment variables saved! Restart the bot to apply changes.'
+        });
     });
 
     app.listen(PORT, () => {
-        console.log(`Web Dashboard is running at http://localhost:${PORT}`);
+        console.log(`🌐 Dashboard at http://localhost:${PORT}`);
     });
 };

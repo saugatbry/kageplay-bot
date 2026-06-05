@@ -7,5 +7,6 @@
   "ticketCategory": "",
   "announcementChannel": "",
   "pingRole": "",
+  "searchChannel": "",
   "adminPassword": "admin"
 }
