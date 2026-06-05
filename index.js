@@ -790,3 +790,6 @@ client.once('ready', async () => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
+
+// Start web dashboard
+require('./dashboard')(client, getConfig, saveConfig);
