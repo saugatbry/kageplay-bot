@@ -7,7 +7,7 @@ const { EmbedBuilder } = require('discord.js');
 
 module.exports = (client, getConfig, saveConfig) => {
     const app = express();
-    const PORT = process.env.DASHBOARD_PORT || 4000;
+    const PORT = process.env.DASHBOARD_PORT || process.env.PORT || 4000;
 
     app.set('view engine', 'ejs');
     app.set('views', path.join(__dirname, 'views'));
@@ -26,6 +26,10 @@ module.exports = (client, getConfig, saveConfig) => {
 
     app.get('/login', (req, res) => {
         res.render('login', { error: null });
+    });
+
+    app.get('/health', (req, res) => {
+        res.json({ status: client.isReady() ? 'ok' : 'starting', uptime: process.uptime() });
     });
 
     app.post('/login', (req, res) => {
@@ -111,7 +115,7 @@ module.exports = (client, getConfig, saveConfig) => {
         });
     });
 
-    app.listen(PORT, () => {
-        console.log(`🌐 Dashboard at http://localhost:${PORT}`);
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`🌐 Dashboard at http://0.0.0.0:${PORT}`);
     });
 };

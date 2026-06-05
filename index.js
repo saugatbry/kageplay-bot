@@ -738,7 +738,14 @@ client.on('guildMemberRemove', async (member) => {
 
 client.once('ready', async () => {
     console.log(`✅ Logged in as ${client.user.tag}`);
-    await registerCommands();
+    console.log(`🌐 Invite URL: https://discord.com/oauth2/authorize?client_id=${client.user.id}&permissions=8&integration_type=0&scope=bot+applications.commands`);
+    
+    if (!process.env.CLIENT_ID) {
+        console.warn('⚠️  CLIENT_ID not set in .env — slash commands will NOT be registered.');
+        console.warn('   Add CLIENT_ID to your .env file and restart the bot.');
+    } else {
+        await registerCommands();
+    }
 
     setInterval(async () => {
         const config = getConfig();
