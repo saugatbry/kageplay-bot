@@ -37,12 +37,16 @@ const COMMANDS = [
 
 async function registerCommands() {
     const token = process.env.DISCORD_TOKEN;
-    const clientId = process.env.CLIENT_ID;
-    if (!token || !clientId) return console.warn('Skipping command registration: missing DISCORD_TOKEN or CLIENT_ID');
+    if (!token) return console.warn('DISCORD_TOKEN missing — cannot register commands');
+    const clientId = process.env.CLIENT_ID || client.user?.id;
+    if (!clientId) return console.warn('Cannot determine client ID — commands not registered');
     try {
         await new REST({ version: '10' }).setToken(token).put(Routes.applicationCommands(clientId), { body: COMMANDS });
-        console.log('Slash commands registered');
-    } catch (e) { console.error('Command registration failed:', e.message); }
+        console.log('✅ Slash commands registered');
+    } catch (e) {
+        console.error('❌ Command registration failed:', e.message);
+        console.error('   Make sure the bot is invited with: https://discord.com/oauth2/authorize?client_id=' + clientId + '&permissions=8&scope=bot+applications.commands');
+    }
 }
 
 // --- EPISODE PAGE ---
@@ -738,14 +742,10 @@ client.on('guildMemberRemove', async (member) => {
 
 client.once('ready', async () => {
     console.log(`✅ Logged in as ${client.user.tag}`);
-    console.log(`🌐 Invite URL: https://discord.com/oauth2/authorize?client_id=${client.user.id}&permissions=8&integration_type=0&scope=bot+applications.commands`);
-    
-    if (!process.env.CLIENT_ID) {
-        console.warn('⚠️  CLIENT_ID not set in .env — slash commands will NOT be registered.');
-        console.warn('   Add CLIENT_ID to your .env file and restart the bot.');
-    } else {
-        await registerCommands();
-    }
+    console.log(`📋 Invite URL: https://discord.com/oauth2/authorize?client_id=${client.user.id}&permissions=8&scope=bot+applications.commands`);
+    console.log(`   (Re-invite with that URL if slash commands don\'t appear)`);
+
+    await registerCommands();
 
     setInterval(async () => {
         const config = getConfig();
