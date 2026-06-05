@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KagePlay Bot - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #121212; color: #e0e0e0; }
+        .sidebar { background-color: #1e1e1e; height: 100vh; padding: 20px; }
+        .sidebar a { color: white; text-decoration: none; display: block; padding: 10px; border-radius: 5px; margin-bottom: 10px; }
+        .sidebar a:hover { background-color: #333; }
+        .content { padding: 30px; }
+        .card { background-color: #1e1e1e; border: none; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .form-control { background-color: #2b2b2b; color: white; border: 1px solid #444; }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <div class="sidebar" style="width: 250px;">
+            <h4>KagePlay Bot</h4>
+            <hr>
+            <a href="/" style="background-color: #0d6efd;">⚙️ Settings</a>
+            <a href="/announce">📢 Announcements</a>
+            <a href="/env">🔒 Env Variables</a>
+            <a href="/logout" class="text-danger">🚪 Logout</a>
+        </div>
+        
+        <div class="content flex-grow-1">
+            <h2>Bot Settings</h2>
+            
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card p-3 text-center">
+                        <h5>Servers</h5>
+                        <h3><%= stats.guilds %></h3>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-3 text-center">
+                        <h5>Users</h5>
+                        <h3><%= stats.users %></h3>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-3 text-center">
+                        <h5>Channels</h5>
+                        <h3><%= stats.channels %></h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-4">
+                <form action="/settings" method="POST">
+                    
+                    <h5 class="mb-3">Welcome & Leave System</h5>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label>Welcome Channel ID</label>
+                            <input type="text" name="welcomeChannel" class="form-control" value="<%= config.welcomeChannel %>">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>Welcome Message</label>
+                            <input type="text" name="welcomeMessage" class="form-control" value="<%= config.welcomeMessage %>">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>Welcome GIF Reaction</label>
+                            <select name="welcomeReaction" class="form-control">
+                                <% const reactions = ["airkiss","angrystare","bite","bleh","blush","brofist","celebrate","cheers","clap","confused","cool","cry","cuddle","dance","drool","evillaugh","facepalm","handhold","happy","headbang","hug","huh","kiss","laugh","lick","love","mad","nervous","no","nom","nosebleed","nuzzle","nyah","pat","peek","pinch","poke","pout","punch","roll","run","sad","scared","shout","shrug","shy","sigh","sing","sip","slap","sleep","slowclap","smack","smile","smug","sneeze","sorry","stare","stop","surprised","sweat","thumbsup","tickle","tired","wave","wink","woah","yawn","yay","yes"]; %>
+                                <% reactions.forEach(reaction => { %>
+                                    <option value="<%= reaction %>" <%= config.welcomeReaction === reaction ? 'selected' : '' %>><%= reaction %></option>
+                                <% }); %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Leave Channel ID</label>
+                            <input type="text" name="leaveChannel" class="form-control" value="<%= config.leaveChannel %>">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Leave Message ({user} to mention)</label>
+                            <input type="text" name="leaveMessage" class="form-control" value="<%= config.leaveMessage %>">
+                        </div>
+                    </div>
+
+                    <hr class="border-secondary my-4">
+
+                    <h5 class="mb-3">Support Tickets System</h5>
+                    <div class="mb-3">
+                        <label>Ticket Category ID (Where ticket channels are created)</label>
+                        <input type="text" name="ticketCategory" class="form-control" value="<%= config.ticketCategory %>">
+                    </div>
+
+                    <hr class="border-secondary my-4">
+
+                    <h5 class="mb-3">Anime Auto-Announcements</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Announcement Channel ID</label>
+                            <input type="text" name="announcementChannel" class="form-control" value="<%= config.announcementChannel %>">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Role ID to Ping (Optional)</label>
+                            <input type="text" name="pingRole" class="form-control" value="<%= config.pingRole %>">
+                        </div>
+                    </div>
+
+                    <hr class="border-secondary my-4">
+
+                    <h5 class="mb-3">Security</h5>
+                    <div class="mb-3">
+                        <label>Dashboard Admin Password</label>
+                        <input type="text" name="adminPassword" class="form-control" value="<%= config.adminPassword %>">
+                    </div>
+
+                    <button type="submit" class="btn btn-success mt-3 px-4">Save Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

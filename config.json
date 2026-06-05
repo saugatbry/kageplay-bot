@@ -1,0 +1,11 @@
+{
+  "welcomeChannel": "",
+  "welcomeMessage": "Welcome to the server, {user}!",
+  "welcomeReaction": "celebrate",
+  "leaveChannel": "",
+  "leaveMessage": "Goodbye, {user}.",
+  "ticketCategory": "",
+  "announcementChannel": "",
+  "pingRole": "",
+  "adminPassword": "admin"
+}
